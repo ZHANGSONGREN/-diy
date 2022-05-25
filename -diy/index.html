@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title></title>
+    <!-- <script src="https://unpkg.com/vue@next"></script> -->
+    <script src="js/v3.2.8/vue.global.prod.js" type="text/javascript" charset="utf-8"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/pgs.js"></script>
+</head>
+<body>
+<div id="app" class="index">
+    <div class="box">
+        <div class="left">
+            <div class="left_index">
+                <div class="title">选择底图:</div>
+                <select class="con" @change="changeImg($event)">
+                    <option>
+                        请选择
+                    </option>
+                    <option :value="item2" :key="index" v-for="(item2,index2) in imgList">
+                        {{item2}}
+                    </option>
+                </select>
+            </div>
+            <div class="label">
+                <ul>
+                    <li :key="index" :class="selectKey == index ? 'select' : ''" @click="select(index)"
+                        v-for="(item, index) in lableList">{{ item.name }}
+                        <div class="del" @click="del(index)">x</div>
+                    </li>
+                    <li @click="addLable">+</li>
+                </ul>
+            </div>
+            <div class="label-body" :key="index" v-for="(item, index) in lableList" v-show="selectKey == index">
+                <div class="left_index">
+                    <div class="title">类型:</div>
+                    <select class="con"  v-model="item.value.type">
+                        <option :value="item2.type" :key="index" v-for="(item2,index2) in typeList2">
+                            {{item2.title}}
+                        </option>
+                    </select>
+                </div>
+                <div class="left_index" v-if="item.value.type == 0">
+                    <div class="title">文言:</div>
+                    <textarea class="con" type="text" v-model="item.value.title"></textarea>
+                </div>
+                <div class="left_index" v-if="item.value.type == 1">
+                    <div class="title">图片地址:</div>
+                    <input class="con" type="text" v-model="item.value.src"/>
+                </div>
+                <div class="left_index" v-if="item.value.type == 0">
+                    <div class="title">字号:</div>
+                    <input class="con" type="text" v-model="item.value.sizea"/>
+                    <!--							<select class="con" @change="sizechange($event)" v-model="sizea">-->
+                    <!--								<option :value="item" v-for="(item,index) in sizelist" :key="'sizelist'+index">{{item}}</option>-->
+                    <!--							</select>-->
+                </div>
+                <div class="left_index" v-if="item.value.type == 0">
+                    <div class="title">字体:</div>
+                    <select class="con" v-model="item.value.typeface">
+                        <option :value="item2.ziti" :key="index" v-for="(item2,index2) in typelist"
+                                :key="'typelist'+index2">
+                            {{item2.title}}
+                        </option>
+                    </select>
+                </div>
+                <div class="left_index" v-if="item.value.type == 0">
+                    <div class="title">颜色:</div>
+                    <div class="con paigusu" :key="index" :num="index">
+                        {{ item.value.colour }}
+                    </div>
+                    <!--                    <input  type="text" v-model=""/>-->
+                    <!--                    <select class="con" @change="colourchange($event)" v-model="item.value.colour">-->
+                    <!--                        <option :value="item2.cor" v-for="(item2,index2) in collist" :key="'collist'+index2">-->
+                    <!--                            {{item2.title}}-->
+                    <!--                        </option>-->
+                    <!--                    </select>-->
+                </div>
+                <div class="left_index" v-if="item.value.type == 1">
+                    <div class="title">宽:</div>
+                    <input class="con" type="number" step="1" v-model="item.value.width"/>
+                </div>
+                <div class="left_index" v-if="item.value.type == 1">
+                    <div class="title">高:</div>
+                    <input class="con" type="number" step="1" v-model="item.value.height"/>
+                </div>
+                <div class="left_index">
+                    <div class="title">上下位移:</div>
+                    <input class="con" type="number" step="1" v-model="item.value.top"/>
+                </div>
+                <div class="left_index">
+                    <div class="title">左右位移:</div>
+                    <input class="con" type="number" step="1" v-model="item.value.left"/>
+                </div>
+            </div>
+
+            <div class="yidong" @click="onclick">确定</div>
+        </div>
+        <div class="right">
+            <img :src="selectImg"/>
+            <!-- fontFamily:arr.conFontFamily -->
+            <div v-for="(item,index) in lableList" :key="index">
+                <div v-if="item.value.type==0"  class="conten"
+                     :style="{color:item.value.colour,fontSize:item.value.sizea+'px',top:item.value.top+'px',left:item.value.left+'px',fontFamily:item.value.typeface}">
+                    {{item.value.title}}
+                </div>
+                <img v-if="item.value.type==1" class="conten" :src="item.value.src" :style="{top:item.value.top+'px',left:item.value.left+'px',width:item.value.width+'px',height:item.value.height+'px' }" alt="">
+            </div>
+
+        </div>
+        <div class="sub">
+            获取
+        </div>
+    </div>
+
+</div>
+<script>
+  const App = {
+    data() {
+      return {
+        selectKey: 0,
+        lableList: [],
+        top: 0,
+        left: 0,
+        title: '',
+        sizea: '',
+        imgList: [
+          "img/22.jpg",
+          "img/22.jpg",
+          "img/22.jpg",
+          "img/22.jpg",
+          "img/22.jpg",
+        ],
+        selectImg: "",
+        sizelist: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34],
+        typeface: '',
+        typeList2: [
+          {
+            title: "文言", type: 0
+          },
+          {
+            title: "图片", type: 1
+          }
+        ],
+        typelist: [
+          {title: "宋体", ziti: "SimSun"}, {title: "微软雅黑", ziti: "MicrosoftYaHei"}, {
+            title: "微软正黑体",
+            ziti: "MicrosoftJhengHei"
+          }, {title: "新宋体", ziti: "NSimSun"}, {title: "新细明体", ziti: "PMingLiU"}, {
+            title: "细明体",
+            ziti: "MingLiU"
+          }, {title: "标楷体", ziti: "DFKai-SB"}, {title: "仿宋", ziti: "FangSong"}, {
+            title: "楷体",
+            ziti: "KaiTi"
+          }, {title: "仿宋_GB2312", ziti: "FangSong_GB2312"}, {title: "楷体_GB2312", ziti: "KaiTi_GB2312"},
+        ],
+        colour: '',
+        collist: [
+          {title: "浅粉红", cor: "#FFB6C1"}, {title: "粉红", cor: "#FFC0CB"}, {
+            title: "猩红",
+            cor: "#DC143C"
+          }, {title: "脸红的淡紫色", cor: "#FFF0F5"}, {title: "苍白的紫罗兰红色", cor: "#DB7093"}, {
+            title: "热情的粉红",
+            cor: "#FF69B4"
+          }, {title: "深粉色", cor: "#FF1493"}, {title: "适中的紫罗兰红色", cor: "#C71585"}, {
+            title: "兰花的紫色",
+            cor: "#DA70D6"
+          }, {title: "蓟", cor: "#D8BFD8"}, {title: "李子", cor: "#DDA0DD"}, {title: "紫罗兰", cor: "#EE82EE"}, {
+            title: "洋红",
+            cor: "#FF00FF"
+          }, {title: "灯笼海棠(紫红色)", cor: "#FF00FF"}, {title: "深洋红色", cor: "#8B008B"}, {
+            title: "紫色",
+            cor: "#800080"
+          }, {title: "适中的兰花紫", cor: "#BA55D3"}, {title: "深紫罗兰色", cor: "#9400D3"}, {
+            title: "深兰花紫",
+            cor: "#9932CC"
+          }, {title: "靛青", cor: "#4B0082"}, {title: "深紫罗兰的蓝色", cor: "#8A2BE2"}, {
+            title: "适中的紫色",
+            cor: "#9370DB"
+          }, {title: "适中的板岩暗蓝灰色", cor: "#7B68EE"}, {title: "板岩暗蓝灰色", cor: "#6A5ACD"}, {
+            title: "深岩暗蓝灰色",
+            cor: "#483D8B"
+          }, {title: "熏衣草花的淡紫色", cor: "#E6E6FA"}, {title: "幽灵的白色", cor: "#F8F8FF"}, {
+            title: "纯蓝",
+            cor: "#0000FF"
+          }, {title: "适中的蓝色", cor: "#0000CD"}, {title: "午夜的蓝色", cor: "#191970"}, {
+            title: "深蓝色",
+            cor: "#00008B"
+          }, {title: "海军蓝", cor: "#000080"}, {title: "皇军蓝", cor: "#4169E1"}, {
+            title: "矢车菊的蓝色",
+            cor: "#6495ED"
+          }, {title: "淡钢蓝", cor: "#B0C4DE"}, {title: "浅石板灰", cor: "#778899"}, {
+            title: "石板灰",
+            cor: "#708090"
+          }, {title: "道奇蓝", cor: "#1E90FF"}, {title: "爱丽丝蓝", cor: "#F0F8FF"}, {
+            title: "钢蓝",
+            cor: "#4682B4"
+          }, {title: "淡蓝色", cor: "#87CEFA"}, {title: "天蓝色", cor: "#87CEEB"}, {
+            title: "深天蓝",
+            cor: "#00BFFF"
+          }, {title: "淡蓝", cor: "#ADD8E6"}, {title: "火药蓝", cor: "#B0E0E6"}, {
+            title: "军校蓝",
+            cor: "#5F9EA0"
+          }, {title: "蔚蓝色", cor: "#F0FFFF"}, {title: "淡青色", cor: "#E1FFFF"}, {
+            title: "苍白的绿宝石",
+            cor: "#AFEEEE"
+          }, {title: "青色", cor: "#00FFFF"}, {title: "水绿色", cor: "#00FFFF"}, {
+            title: "深绿宝石",
+            cor: "#00CED1"
+          }, {title: "深石板灰", cor: "#2F4F4F"}, {title: "深青色", cor: "#008B8B"}, {
+            title: "水鸭色",
+            cor: "#008080"
+          }, {title: "适中的绿宝石", cor: "#48D1CC"}, {title: "浅海洋绿", cor: "#20B2AA"}, {
+            title: "绿宝石",
+            cor: "#40E0D0"
+          }, {title: "绿玉\碧绿色", cor: "#7FFFAA"}, {title: "适中的碧绿色", cor: "#00FA9A"}, {
+            title: "适中的春天的绿色",
+            cor: "#F5FFFA"
+          }, {title: "薄荷奶油", cor: "#00FF7F"}, {title: "春天的绿色", cor: "#3CB371"}, {
+            title: "海洋绿",
+            cor: "#2E8B57"
+          }, {title: "蜂蜜", cor: "#F0FFF0"}, {title: "淡绿色", cor: "#90EE90"}, {
+            title: "苍白的绿色",
+            cor: "#98FB98"
+          }, {title: "深海洋绿", cor: "#8FBC8F"}, {title: "酸橙绿", cor: "#32CD32"}, {
+            title: "酸橙色",
+            cor: "#00FF00"
+          }, {title: "森林绿", cor: "#228B22"}, {title: "纯绿", cor: "#008000"}, {
+            title: "深绿色",
+            cor: "#006400"
+          }, {title: "查特酒绿", cor: "#7FFF00"}, {title: "草坪绿", cor: "#7CFC00"}, {
+            title: "绿黄色",
+            cor: "#ADFF2F"
+          }, {title: "橄榄土褐色", cor: "#556B2F"}, {title: "米色(浅褐色)", cor: "#6B8E23"}, {
+            title: "浅秋麒麟黄",
+            cor: "#FAFAD2"
+          }, {title: "象牙", cor: "#FFFFF0"}, {title: "浅黄色", cor: "#FFFFE0"}, {title: "纯黄", cor: "#FFFF00"}, {
+            title: "橄榄",
+            cor: "#808000"
+          }, {title: "深卡其布", cor: "#BDB76B"}, {title: "柠檬薄纱", cor: "#FFFACD"}, {
+            title: "灰秋麒麟",
+            cor: "#EEE8AA"
+          }, {title: "卡其布", cor: "#F0E68C"}, {title: "金", cor: "#FFD700"}, {
+            title: "玉米色",
+            cor: "#FFF8DC"
+          }, {title: "秋麒麟", cor: "#DAA520"}, {title: "花的白色", cor: "#FFFAF0"}, {
+            title: "老饰带",
+            cor: "#FDF5E6"
+          }, {title: "小麦色", cor: "#F5DEB3"}, {title: "鹿皮鞋", cor: "#FFE4B5"}, {
+            title: "橙色",
+            cor: "#FFA500"
+          }, {title: "番木瓜", cor: "#FFEFD5"}, {title: "漂白的杏仁", cor: "#FFEBCD"}, {
+            title: "Navajo白",
+            cor: "#FFDEAD"
+          }, {title: "古代的白色", cor: "#FAEBD7"}, {title: "晒黑", cor: "#D2B48C"}, {
+            title: "结实的树",
+            cor: "#DEB887"
+          }, {title: "(浓汤)乳脂,番茄等", cor: "#FFE4C4"}, {title: "深橙色", cor: "#FF8C00"}, {
+            title: "亚麻布",
+            cor: "#FAF0E6"
+          }, {title: "秘鲁", cor: "#CD853F"}, {title: "桃色", cor: "#FFDAB9"}, {
+            title: "沙棕色",
+            cor: "#F4A460"
+          }, {title: "巧克力", cor: "#D2691E"}, {title: "马鞍棕色", cor: "#8B4513"}, {
+            title: "海贝壳",
+            cor: "#FFF5EE"
+          }, {title: "黄土赭色", cor: "#A0522D"}, {title: "浅鲜肉(鲑鱼)色", cor: "#FFA07A"}, {
+            title: "珊瑚",
+            cor: "#FF7F50"
+          }, {title: "橙红色", cor: "#FF4500"}, {title: "深鲜肉(鲑鱼)色", cor: "#E9967A"}, {
+            title: "番茄",
+            cor: "#FF6347"
+          }, {title: "薄雾玫瑰", cor: "#FFE4E1"}, {title: "鲜肉(鲑鱼)色", cor: "#FA8072"}, {
+            title: "雪",
+            cor: "#FFFAFA"
+          }, {title: "淡珊瑚色", cor: "#F08080"}, {title: "玫瑰棕色", cor: "#BC8F8F"}, {
+            title: "印度红",
+            cor: "#CD5C5C"
+          }, {title: "纯红", cor: "#FF0000"}, {title: "棕色", cor: "#A52A2A"}, {
+            title: "耐火砖",
+            cor: "#B22222"
+          }, {title: "深红色", cor: "#8B0000"}, {title: "栗色", cor: "#800000"}, {title: "纯白", cor: "#FFFFFF"}, {
+            title: "白烟",
+            cor: "#F5F5F5"
+          }, {title: "Gainsboro", cor: "#DCDCDC"}, {title: "浅灰色", cor: "#D3D3D3"}, {
+            title: "银白色",
+            cor: "#C0C0C0"
+          }, {title: "深灰色", cor: "#A9A9A9"}, {title: "灰色", cor: "#808080"}, {
+            title: "暗淡的灰色",
+            cor: "#696969"
+          }, {title: "纯黑", cor: "#000000"},
+        ]
+      }
+    },
+    created() {
+      this.sizea = this.sizelist[0]
+      this.typeface = this.typelist[0].ziti
+      this.colour = this.collist[0].cor
+      window.queryData = this.queryData;
+    },
+    mounted() {
+    },
+    methods: {
+      queryData() {
+        return this.lableList.map(item=>{
+          return item.value;
+        })
+      },
+      changeImg(e) {
+        this.selectImg = e.target.value
+      },
+      select(i) {
+        this.selectKey = i;
+      },
+      del(i) {
+        this.lableList.splice(i, 1);
+      },
+      addLable() {
+        console.log("添加lable");
+        this.selectKey = this.lableList.length;
+        this.lableList.push({
+          name: this.lableList.length,
+          value: {
+            top: 0,
+            left: 0,
+            type: 0,
+            title: '',
+            sizea: '16',
+            typeface: '',
+            colour: '',
+            width: 100,
+            height: 100,
+            src: ""
+          }
+        })
+
+        let _this = this;
+
+        setTimeout(() => {
+          $('.paigusu').pgs({
+            color: '#1926dc',//初始色  支持两种配置方案
+            // recommend : '25,38,220,1|25,38,220,1|46,49,104,1|25,38,220,1|46,49,104,1|25,38,220,1|46,49,104,1|25,38,220,1|46,49,104,1|25,38,220,1|46,49,104,1'
+//		,color : '42,0,255'
+          }, function (event, obj) {
+            // console.log(event);
+            // console.log(_this.lableList);
+            // console.log(_this.lableList[$(event).attr("num")]);
+            // $(event).css('color','#' + obj.hex)
+            _this.lableList[$(event).attr("num")].value.colour = '#' + obj.hex;
+          });
+        }, 0)
+      },
+      onclick() {
+        // console.log('姓名', this.title)
+        // console.log('字号', this.sizea)
+        // console.log('字体', this.typeface)
+        // console.log('颜色', this.colour)
+        // console.log('top', this.top)
+        // console.log('left', this.left)
+      },
+      sizechange(e) {
+        this.sizea = e.target.value
+        console.log('11111', e.target.value)
+      },
+      typefacechange(e) {
+        this.typeface = e.target.value
+        console.log('22222', e.target.value)
+      },
+      changeType2(e) {
+        this.type = e.target.value
+        console.log('22222', e.target.value)
+      },
+      // colourchange(e) {
+      //   this.colour = e.target.value
+      //   console.log('33333', e.target.value)
+      // }
+    }
+  };
+  Vue.createApp(App).mount('#app');
+
+</script>
+</body>
+<style>
+    * {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .select {
+        color: #fff;
+        background: dodgerblue;
+    }
+
+    .del {
+        position: absolute;
+        top: -10px;
+        right: -10px;
+        background-color: red;
+        border-radius: 50%;
+        width: 22px;
+        height: 22px;
+        text-align: center;
+        line-height: 22px;
+        color: #ffffff;
+    }
+
+    .label {
+        width: 100%;
+        display: flex;
+        justify-content: left;
+        border-bottom: 1px solid #999999;
+        margin-bottom: 20px;
+    }
+
+    .label ul {
+        width: 100%;
+    }
+
+    .label li {
+        padding: 5px 10px;
+        /*background-color: #;*/
+        cursor: pointer;
+        display: inline-block;
+        margin-right: 12px;
+        border: 1px solid #999999;
+        position: relative;
+    }
+
+    .label-body {
+        width: 100%;
+    }
+
+    body {
+        padding: 0;
+        margin: 0;
+    }
+
+    .index {
+        width: 100%;
+        height: 100%;
+        /*padding: 50px;*/
+        min-width: 1600px;
+
+    }
+
+    .box {
+        padding-top: 20px;
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .left {
+        width: 25%;
+        flex-shrink: 0;
+        /*height: 200px;*/
+        display: flex;
+        flex-direction: column;
+        /*justify-content: center;*/
+        align-items: center;
+        /*padding: 0 50px;*/
+        /*padding-top: 150px;*/
+    }
+
+    .right {
+        width: 70%;
+        /*margin-top: 50px;*/
+        /*margin-right: 100px;*/
+        /* padding:50px 100px; */
+        position: relative;
+        overflow: hidden;
+    }
+
+    .right img {
+        width: 100%;
+    }
+
+    .left_index {
+        width: calc(100% - 24px);
+        padding: 0 12px;
+        display: flex;
+        margin-bottom: 10px;
+    }
+
+    .conten {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+    }
+
+    .title {
+        font-size: 16px;
+        color: #000000;
+        width: 20%;
+        line-height: 40px;
+    }
+
+    .con {
+        border: 1px solid #000000;
+        height: 40px;
+        line-height: 40px;
+        font-size: 16px;
+        color: #000000;
+        flex: 1;
+        outline: none;
+        padding: 0 10px;
+    }
+
+    .con option {
+        height: 40px;
+        font-size: 16px;
+        color: #000000;
+    }
+
+    .yidong {
+        font-size: 16px;
+        color: #fff;
+        cursor: pointer;
+        width: 60%;
+        /*margin: auto;*/
+        line-height: 35px;
+        text-align: center;
+        background: dodgerblue;
+        border-radius: 5px;
+    }
+</style>
+</html>
